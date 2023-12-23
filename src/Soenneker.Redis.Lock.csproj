@@ -39,6 +39,6 @@
         <PackageReference Include="Humanizer.Core" Version="2.14.1" />
 
         
-        <PackageReference Include="Soenneker.Redis.Util" Version="2.1.415" />
+        <PackageReference Include="Soenneker.Redis.Util" Version="2.1.420" />
     </ItemGroup>
 </Project>
