@@ -8,5 +8,5 @@
 ## Installation
 
 ```
-Install-Package Soenneker.Redis.Lock
+dotnet add package Soenneker.Redis.Lock
 ```
