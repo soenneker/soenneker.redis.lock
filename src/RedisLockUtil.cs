@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Soenneker.Extensions.ValueTask;
 using Soenneker.Redis.Lock.Abstract;
 using Soenneker.Redis.Util.Abstract;
 
@@ -20,7 +21,7 @@ public class RedisLockUtil : IRedisLockUtil
 
     public async ValueTask<bool> Check(string lockName)
     {
-        string? sourcesLock = await _redisUtil.GetString(lockName);
+        string? sourcesLock = await _redisUtil.GetString(lockName).NoSync();
 
         bool result = sourcesLock != null;
 
@@ -50,7 +51,7 @@ public class RedisLockUtil : IRedisLockUtil
 
         foreach (string lockName in locks)
         {
-            await Unlock(lockName);
+            await Unlock(lockName).NoSync();
         }
 
         _logger.LogDebug("All Redis locks have been removed");
