@@ -8,12 +8,12 @@ using Xunit.Abstractions;
 
 namespace Soenneker.Redis.Lock.Tests;
 
-[Collection("RedisLockUtilCollection")]
+[Collection("Collection")]
 public class RedisLockUtilTests : FixturedUnitTest
 {
     private readonly IRedisLockUtil _util;
 
-    public RedisLockUtilTests(RedisLockUtilFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public RedisLockUtilTests(Fixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
     {
         _util = Resolve<IRedisLockUtil>(true);
     }

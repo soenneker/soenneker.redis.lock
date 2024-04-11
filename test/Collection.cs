@@ -7,7 +7,7 @@ namespace Soenneker.Redis.Lock.Tests;
 /// to be the place to apply [CollectionDefinition] and all the
 /// ICollectionFixture interfaces.
 /// </summary>
-[CollectionDefinition("RedisLockUtilCollection")]
-public class RedisLockUtilCollection : ICollectionFixture<RedisLockUtilFixture>
+[CollectionDefinition("Collection")]
+public class Collection : ICollectionFixture<Fixture>
 {
 }
