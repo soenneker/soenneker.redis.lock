@@ -22,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\src\Soenneker.Redis.Lock.csproj" />
+        <ProjectReference Include="..\..\src\Soenneker.Redis.Lock.csproj" />
     </ItemGroup>
 
     <ItemGroup>
