@@ -4,7 +4,7 @@ using FluentAssertions;
 using Soenneker.Redis.Lock.Abstract;
 using Soenneker.Tests.FixturedUnit;
 using Xunit;
-using Xunit.Abstractions;
+
 
 namespace Soenneker.Redis.Lock.Tests;
 
