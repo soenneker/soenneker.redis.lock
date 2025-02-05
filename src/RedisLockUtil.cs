@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Soenneker.Extensions.ValueTask;
@@ -19,9 +20,9 @@ public class RedisLockUtil : IRedisLockUtil
         _logger = logger;
     }
 
-    public async ValueTask<bool> Check(string lockName)
+    public async ValueTask<bool> Check(string lockName, CancellationToken cancellationToken = default)
     {
-        string? sourcesLock = await _redisUtil.GetString(lockName).NoSync();
+        string? sourcesLock = await _redisUtil.GetString(lockName, cancellationToken).NoSync();
 
         bool result = sourcesLock != null;
 
@@ -31,27 +32,27 @@ public class RedisLockUtil : IRedisLockUtil
         return result;
     }
 
-    public ValueTask Lock(string lockName)
+    public ValueTask Lock(string lockName, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Locking Redis lock ({name})...", lockName);
 
-        return _redisUtil.Set(lockName, "1");
+        return _redisUtil.Set(lockName, "1", cancellationToken: cancellationToken);
     }
 
-    public ValueTask Unlock(string lockName)
+    public ValueTask Unlock(string lockName, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Unlocking Redis lock ({name})...", lockName);
 
-        return _redisUtil.Remove(lockName);
+        return _redisUtil.Remove(lockName, cancellationToken: cancellationToken);
     }
 
-    public async Task UnlockAll(IEnumerable<string> locks)
+    public async Task UnlockAll(IEnumerable<string> locks, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Unlocking all Redis locks...");
 
         foreach (string lockName in locks)
         {
-            await Unlock(lockName).NoSync();
+            await Unlock(lockName, cancellationToken).NoSync();
         }
 
         _logger.LogDebug("All Redis locks have been removed");

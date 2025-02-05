@@ -10,15 +10,19 @@ namespace Soenneker.Redis.Lock.Registrars;
 /// </summary>
 public static class RedisLockUtilRegistrar
 {
-    public static void AddRedisLockUtilAsSingleton(this IServiceCollection services)
+    public static IServiceCollection AddRedisLockUtilAsSingleton(this IServiceCollection services)
     {
         services.AddRedisUtilAsSingleton();
         services.TryAddSingleton<IRedisLockUtil, RedisLockUtil>();
+
+        return services;
     }
 
-    public static void AddRedisLockUtilAsScoped(this IServiceCollection services)
+    public static IServiceCollection AddRedisLockUtilAsScoped(this IServiceCollection services)
     {
         services.AddRedisUtilAsSingleton();
         services.TryAddScoped<IRedisLockUtil, RedisLockUtil>();
+
+        return services;
     }
 }
