@@ -12,16 +12,16 @@ public static class RedisLockUtilRegistrar
 {
     public static IServiceCollection AddRedisLockUtilAsSingleton(this IServiceCollection services)
     {
-        services.AddRedisUtilAsSingleton();
-        services.TryAddSingleton<IRedisLockUtil, RedisLockUtil>();
+        services.AddRedisUtilAsSingleton()
+                .TryAddSingleton<IRedisLockUtil, RedisLockUtil>();
 
         return services;
     }
 
     public static IServiceCollection AddRedisLockUtilAsScoped(this IServiceCollection services)
     {
-        services.AddRedisUtilAsSingleton();
-        services.TryAddScoped<IRedisLockUtil, RedisLockUtil>();
+        services.AddRedisUtilAsSingleton()
+                .TryAddScoped<IRedisLockUtil, RedisLockUtil>();
 
         return services;
     }

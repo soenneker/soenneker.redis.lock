@@ -21,9 +21,9 @@ public class RedisLockUtilTests : FixturedUnitTest
     [Fact]
     public async Task Check_after_lock_should_be_true()
     {
-        await _util.Lock("test");
+        await _util.Lock("test", CancellationToken);
 
-        bool locked = await _util.Check("test");
+        bool locked = await _util.Check("test", CancellationToken);
 
         locked.Should().BeTrue();
     }
@@ -31,11 +31,11 @@ public class RedisLockUtilTests : FixturedUnitTest
     [Fact]
     public async Task Check_after_unlock_should_be_false()
     {
-        await _util.Lock("test");
+        await _util.Lock("test", CancellationToken);
 
-        await _util.Unlock("test");
+        await _util.Unlock("test", CancellationToken);
 
-        bool locked = await _util.Check("test");
+        bool locked = await _util.Check("test", CancellationToken);
 
         locked.Should().BeFalse();
     }
@@ -43,13 +43,13 @@ public class RedisLockUtilTests : FixturedUnitTest
     [Fact]
     public async Task UnlockAll_should_be_false_when_checking()
     {
-        await _util.Lock("test1");
-        await _util.Lock("test2");
+        await _util.Lock("test1", CancellationToken);
+        await _util.Lock("test2", CancellationToken);
 
-        await _util.UnlockAll(new List<string>{"test1", "test2"});
+        await _util.UnlockAll(new List<string>{"test1", "test2"}, CancellationToken);
 
-        bool locked1 = await _util.Check("test1");
-        bool locked2 = await _util.Check("test2");
+        bool locked1 = await _util.Check("test1", CancellationToken);
+        bool locked2 = await _util.Check("test2", CancellationToken);
 
         locked1.Should().BeFalse();
         locked2.Should().BeFalse();
