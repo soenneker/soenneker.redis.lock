@@ -52,6 +52,8 @@ public class RedisLockUtil : IRedisLockUtil
 
         foreach (string lockName in locks)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             await Unlock(lockName, cancellationToken).NoSync();
         }
 
