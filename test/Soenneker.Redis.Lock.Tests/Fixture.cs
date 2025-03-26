@@ -10,7 +10,7 @@ namespace Soenneker.Redis.Lock.Tests;
 
 public class Fixture : UnitFixture
 {
-    public override async System.Threading.Tasks.ValueTask InitializeAsync()
+    public override async ValueTask InitializeAsync()
     {
         SetupIoC(Services);
 

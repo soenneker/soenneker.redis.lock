@@ -20,7 +20,7 @@ public static class RedisLockUtilRegistrar
 
     public static IServiceCollection AddRedisLockUtilAsScoped(this IServiceCollection services)
     {
-        services.AddRedisUtilAsSingleton()
+        services.AddRedisUtilAsScoped()
                 .TryAddScoped<IRedisLockUtil, RedisLockUtil>();
 
         return services;
