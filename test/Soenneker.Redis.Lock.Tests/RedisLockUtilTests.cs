@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using FluentAssertions;
+using AwesomeAssertions;
 using Soenneker.Redis.Lock.Abstract;
 using Soenneker.Tests.FixturedUnit;
 using Xunit;
