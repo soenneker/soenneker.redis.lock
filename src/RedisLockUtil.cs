@@ -9,7 +9,7 @@ using Soenneker.Redis.Util.Abstract;
 namespace Soenneker.Redis.Lock;
 
 /// <inheritdoc cref="IRedisLockUtil"/>
-public class RedisLockUtil : IRedisLockUtil
+public sealed class RedisLockUtil : IRedisLockUtil
 {
     private readonly IRedisUtil _redisUtil;
     private readonly ILogger<RedisLockUtil> _logger;
