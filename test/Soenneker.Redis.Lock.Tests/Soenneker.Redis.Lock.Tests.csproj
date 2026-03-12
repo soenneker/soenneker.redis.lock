@@ -16,7 +16,7 @@
         <PackageReference Include="Soenneker.Utils.Test" Version="4.0.308" /><PackageReference Include="xUnit.v3" Version="3.2.2" /></ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Soenneker.Redis.Lock.csproj" />
+        <ProjectReference Include="..\..\src\Soenneker.Redis.Lock\Soenneker.Redis.Lock.csproj" />
     </ItemGroup>
 
     <ItemGroup>
