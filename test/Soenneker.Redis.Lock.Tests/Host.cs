@@ -2,15 +2,15 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using Soenneker.Fixtures.Unit;
+using Soenneker.TestHosts.Unit;
 using Soenneker.Redis.Lock.Registrars;
 using Soenneker.Utils.Test;
 
 namespace Soenneker.Redis.Lock.Tests;
 
-public class Fixture : UnitFixture
+public class Host : UnitTestHost
 {
-    public override async ValueTask InitializeAsync()
+    public override async Task InitializeAsync()
     {
         SetupIoC(Services);
 

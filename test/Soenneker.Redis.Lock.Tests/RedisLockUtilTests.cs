@@ -2,23 +2,22 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Soenneker.Redis.Lock.Abstract;
-using Soenneker.Tests.FixturedUnit;
-using Xunit;
+using Soenneker.Tests.HostedUnit;
 
 
 namespace Soenneker.Redis.Lock.Tests;
 
-[Collection("Collection")]
-public class RedisLockUtilTests : FixturedUnitTest
+[ClassDataSource<Host>(Shared = SharedType.PerTestSession)]
+public class RedisLockUtilTests : HostedUnitTest
 {
     private readonly IRedisLockUtil _util;
 
-    public RedisLockUtilTests(Fixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public RedisLockUtilTests(Host host) : base(host)
     {
         _util = Resolve<IRedisLockUtil>(true);
     }
 
-    [Fact]
+    [Test]
     public async Task Check_after_lock_should_be_true()
     {
         await _util.Lock("test", CancellationToken);
@@ -28,7 +27,7 @@ public class RedisLockUtilTests : FixturedUnitTest
         locked.Should().BeTrue();
     }
 
-    [Fact]
+    [Test]
     public async Task Check_after_unlock_should_be_false()
     {
         await _util.Lock("test", CancellationToken);
@@ -40,7 +39,7 @@ public class RedisLockUtilTests : FixturedUnitTest
         locked.Should().BeFalse();
     }
 
-    [Fact]
+    [Test]
     public async Task UnlockAll_should_be_false_when_checking()
     {
         await _util.Lock("test1", CancellationToken);
