@@ -13,7 +13,7 @@
     </PropertyGroup>
 
     <ItemGroup><PackageReference Include="Soenneker.Tests.FixturedUnit" Version="4.0.2305" />
-        <PackageReference Include="Soenneker.Utils.Test" Version="4.0.314" /><PackageReference Include="xUnit.v3" Version="3.2.2" /></ItemGroup>
+        <PackageReference Include="Soenneker.Utils.Test" Version="4.0.315" /><PackageReference Include="xUnit.v3" Version="3.2.2" /></ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Soenneker.Redis.Lock\Soenneker.Redis.Lock.csproj" />
