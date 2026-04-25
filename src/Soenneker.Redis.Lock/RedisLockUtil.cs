@@ -27,21 +27,21 @@ public sealed class RedisLockUtil : IRedisLockUtil
         bool result = sourcesLock != null;
 
         if (result)
-            _logger.LogDebug("Redis lock ({name}) is currently set", lockName);
+            _logger.LogDebug("Redis lock ({lockName}) is currently set", lockName);
 
         return result;
     }
 
     public ValueTask Lock(string lockName, CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Locking Redis lock ({name})...", lockName);
+        _logger.LogDebug("Locking Redis lock ({lockName})...", lockName);
 
         return _redisUtil.Set(lockName, "1", cancellationToken: cancellationToken);
     }
 
     public ValueTask Unlock(string lockName, CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Unlocking Redis lock ({name})...", lockName);
+        _logger.LogDebug("Unlocking Redis lock ({lockName})...", lockName);
 
         return _redisUtil.Remove(lockName, cancellationToken: cancellationToken);
     }
