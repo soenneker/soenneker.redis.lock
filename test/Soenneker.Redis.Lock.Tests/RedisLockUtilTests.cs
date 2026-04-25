@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,21 +22,32 @@ public class RedisLockUtilTests : HostedUnitTest
     [Test]
     public async Task Check_after_lock_should_be_true(CancellationToken cancellationToken)
     {
-        await _util.Lock("test", cancellationToken);
+        string lockName = CreateLockName();
 
-        bool locked = await _util.Check("test", cancellationToken);
+        try
+        {
+            await _util.Lock(lockName, cancellationToken);
 
-        locked.Should().BeTrue();
+            bool locked = await _util.Check(lockName, cancellationToken);
+
+            locked.Should().BeTrue();
+        }
+        finally
+        {
+            await _util.Unlock(lockName, CancellationToken.None);
+        }
     }
 
     [Test]
     public async Task Check_after_unlock_should_be_false(CancellationToken cancellationToken)
     {
-        await _util.Lock("test", cancellationToken);
+        string lockName = CreateLockName();
 
-        await _util.Unlock("test", cancellationToken);
+        await _util.Lock(lockName, cancellationToken);
 
-        bool locked = await _util.Check("test", cancellationToken);
+        await _util.Unlock(lockName, cancellationToken);
+
+        bool locked = await _util.Check(lockName, cancellationToken);
 
         locked.Should().BeFalse();
     }
@@ -43,16 +55,21 @@ public class RedisLockUtilTests : HostedUnitTest
     [Test]
     public async Task UnlockAll_should_be_false_when_checking(CancellationToken cancellationToken)
     {
-        await _util.Lock("test1", cancellationToken);
-        await _util.Lock("test2", cancellationToken);
+        string lockName1 = CreateLockName();
+        string lockName2 = CreateLockName();
 
-        await _util.UnlockAll(new List<string>{"test1", "test2"}, cancellationToken);
+        await _util.Lock(lockName1, cancellationToken);
+        await _util.Lock(lockName2, cancellationToken);
 
-        bool locked1 = await _util.Check("test1", cancellationToken);
-        bool locked2 = await _util.Check("test2", cancellationToken);
+        await _util.UnlockAll(new List<string> { lockName1, lockName2 }, cancellationToken);
+
+        bool locked1 = await _util.Check(lockName1, cancellationToken);
+        bool locked2 = await _util.Check(lockName2, cancellationToken);
 
         locked1.Should().BeFalse();
         locked2.Should().BeFalse();
     }
+
+    private static string CreateLockName() => $"test:{Guid.NewGuid():N}";
 }
 
