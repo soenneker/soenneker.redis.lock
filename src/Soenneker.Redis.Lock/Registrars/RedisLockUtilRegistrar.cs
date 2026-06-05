@@ -10,6 +10,11 @@ namespace Soenneker.Redis.Lock.Registrars;
 /// </summary>
 public static class RedisLockUtilRegistrar
 {
+    /// <summary>
+    /// Adds redis lock util as singleton.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The result of the operation.</returns>
     public static IServiceCollection AddRedisLockUtilAsSingleton(this IServiceCollection services)
     {
         services.AddRedisUtilAsSingleton()
@@ -18,6 +23,11 @@ public static class RedisLockUtilRegistrar
         return services;
     }
 
+    /// <summary>
+    /// Adds redis lock util as scoped.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <returns>The result of the operation.</returns>
     public static IServiceCollection AddRedisLockUtilAsScoped(this IServiceCollection services)
     {
         services.AddRedisUtilAsScoped()
