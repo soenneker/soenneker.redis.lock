@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -22,9 +22,9 @@ public sealed class RedisLockUtil : IRedisLockUtil
 
     public async ValueTask<bool> Check(string lockName, CancellationToken cancellationToken = default)
     {
-        string? sourcesLock = await _redisUtil.GetString(lockName, cancellationToken).NoSync();
+        string? value = await _redisUtil.GetString(lockName, cancellationToken).NoSync();
 
-        bool result = sourcesLock != null;
+        bool result = value is not null;
 
         if (result)
             _logger.LogDebug("Redis lock ({lockName}) is currently set", lockName);
@@ -32,31 +32,58 @@ public sealed class RedisLockUtil : IRedisLockUtil
         return result;
     }
 
-    public ValueTask Lock(string lockName, CancellationToken cancellationToken = default)
+    public async ValueTask<RedisLockHandle?> TryLock(string lockName, System.TimeSpan expiration, CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Locking Redis lock ({lockName})...", lockName);
+        ValidateExpiration(expiration);
 
-        return _redisUtil.Set(lockName, "1", cancellationToken: cancellationToken);
+        _logger.LogDebug("Attempting to set Redis lock ({lockName}) with expiration ({expiration})...", lockName, expiration);
+
+        var lockToken = System.Guid.NewGuid().ToString();
+        bool acquired = await _redisUtil.SetIfNotExists(lockName, lockToken, expiration, cancellationToken).NoSync();
+
+        return acquired ? new RedisLockHandle(this, lockName, lockToken) : null;
     }
 
-    public ValueTask Unlock(string lockName, CancellationToken cancellationToken = default)
+    public ValueTask Lock(string lockName, System.TimeSpan expiration, CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Unlocking Redis lock ({lockName})...", lockName);
+        ValidateExpiration(expiration);
+
+        _logger.LogDebug("Setting Redis lock ({lockName}) with expiration ({expiration})...", lockName, expiration);
+
+        return _redisUtil.Set(lockName, "1", expiration, cancellationToken: cancellationToken);
+    }
+
+    public ValueTask<bool> Unlock(string lockName, string lockValue, CancellationToken cancellationToken = default)
+    {
+        _logger.LogDebug("Unlocking Redis lock ({lockName}) if its value matches...", lockName);
+
+        return _redisUtil.RemoveIfEqual(lockName, lockValue, cancellationToken);
+    }
+
+    public ValueTask ForceUnlock(string lockName, CancellationToken cancellationToken = default)
+    {
+        _logger.LogWarning("Forcibly unlocking Redis lock ({lockName}) without checking its value...", lockName);
 
         return _redisUtil.Remove(lockName, cancellationToken: cancellationToken);
     }
 
-    public async Task UnlockAll(IEnumerable<string> locks, CancellationToken cancellationToken = default)
+    public async Task ForceUnlockAll(IEnumerable<string> locks, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Unlocking all Redis locks...");
+        _logger.LogInformation("Forcibly unlocking all Redis locks...");
 
         foreach (string lockName in locks)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            await Unlock(lockName, cancellationToken).NoSync();
+            await ForceUnlock(lockName, cancellationToken).NoSync();
         }
 
         _logger.LogDebug("All Redis locks have been removed");
+    }
+
+    private static void ValidateExpiration(System.TimeSpan expiration)
+    {
+        if (expiration <= System.TimeSpan.Zero)
+            throw new System.ArgumentOutOfRangeException(nameof(expiration), "Expiration must be greater than zero.");
     }
 }
