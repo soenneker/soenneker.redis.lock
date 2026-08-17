@@ -89,6 +89,19 @@ public class RedisLockUtilTests : HostedUnitTest
     }
 
     [Test]
+    public async Task Unlock_should_release_lock_created_by_Lock(CancellationToken cancellationToken)
+    {
+        string lockName = CreateLockName();
+
+        await _util.Lock(lockName, _lockExpiration, cancellationToken);
+        bool unlocked = await _util.Unlock(lockName, cancellationToken);
+        bool locked = await _util.Check(lockName, cancellationToken);
+
+        unlocked.Should().BeTrue();
+        locked.Should().BeFalse();
+    }
+
+    [Test]
     public async Task ForceUnlock_should_remove_lock(CancellationToken cancellationToken)
     {
         string lockName = CreateLockName();

@@ -11,6 +11,8 @@ namespace Soenneker.Redis.Lock;
 /// <inheritdoc cref="IRedisLockUtil"/>
 public sealed class RedisLockUtil : IRedisLockUtil
 {
+    private const string _lockValue = "1";
+
     private readonly IRedisUtil _redisUtil;
     private readonly ILogger<RedisLockUtil> _logger;
 
@@ -50,7 +52,12 @@ public sealed class RedisLockUtil : IRedisLockUtil
 
         _logger.LogDebug("Setting Redis lock ({lockName}) with expiration ({expiration})...", lockName, expiration);
 
-        return _redisUtil.Set(lockName, "1", expiration, cancellationToken: cancellationToken);
+        return _redisUtil.Set(lockName, _lockValue, expiration, cancellationToken: cancellationToken);
+    }
+
+    public ValueTask<bool> Unlock(string lockName, CancellationToken cancellationToken = default)
+    {
+        return Unlock(lockName, _lockValue, cancellationToken);
     }
 
     public ValueTask<bool> Unlock(string lockName, string lockValue, CancellationToken cancellationToken = default)

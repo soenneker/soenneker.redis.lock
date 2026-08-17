@@ -39,6 +39,14 @@ public interface IRedisLockUtil
     ValueTask Lock(string lockName, System.TimeSpan expiration, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Releases a Redis lock created by <see cref="Lock"/>.
+    /// </summary>
+    /// <param name="lockName">The name of the lock to release.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns><c>true</c> if the lock was released; otherwise <c>false</c>.</returns>
+    ValueTask<bool> Unlock(string lockName, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Releases a Redis lock only when its current value matches the specified lock value.
     /// </summary>
     /// <param name="lockName">The name of the lock to release.</param>
