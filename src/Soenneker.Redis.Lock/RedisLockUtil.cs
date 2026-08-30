@@ -8,7 +8,6 @@ using Soenneker.Redis.Util.Abstract;
 
 namespace Soenneker.Redis.Lock;
 
-/// <inheritdoc cref="IRedisLockUtil"/>
 public sealed class RedisLockUtil : IRedisLockUtil
 {
     private const string _lockValue = "1";

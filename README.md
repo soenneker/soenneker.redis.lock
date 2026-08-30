@@ -1,51 +1,58 @@
 [![](https://img.shields.io/nuget/v/Soenneker.Redis.Lock.svg?style=for-the-badge)](https://www.nuget.org/packages/Soenneker.Redis.Lock/)
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.redis.lock/publish-package.yml?style=for-the-badge)](https://github.com/soenneker/soenneker.redis.lock/actions/workflows/publish-package.yml)
 [![](https://img.shields.io/nuget/dt/Soenneker.Redis.Lock.svg?style=for-the-badge)](https://www.nuget.org/packages/Soenneker.Redis.Lock/)
+[![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.redis.lock/build-and-test.yml?label=build%20and%20test&style=for-the-badge)](https://github.com/soenneker/soenneker.redis.lock/actions/workflows/build-and-test.yml)
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.redis.lock/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.redis.lock/actions/workflows/codeql.yml)
 
 # Soenneker.Redis.Lock
 
-A utility library leveraging Redis that provides distributed locking Typically Scoped IoC.
+Provides expiring Redis locks with ownership-safe acquisition and release.
 
-## Install
+## Installation
 
 ```bash
 dotnet add package Soenneker.Redis.Lock
 ```
 
-## Quick start
+## Registration
 
 ```csharp
 using Soenneker.Redis.Lock.Registrars;
-using Microsoft.Extensions.DependencyInjection;
 
-var services = new ServiceCollection();
-var result = services.AddRedisLockUtilAsSingleton();
+services.AddRedisLockUtilAsScoped();
 ```
 
-Registers Redis Lock Util with a singleton lifetime.
+Registration includes `Soenneker.Redis.Util`; configure its Redis connection before resolving `IRedisLockUtil`.
 
-## What you get
+## Acquire a lock
 
-- `IRedisLockUtil` — A utility library leveraging Redis that provides distributed locking Typically Scoped IoC.
-- `RedisLockUtilRegistrar` — A utility library leveraging Redis that provides distributed locking.
-- `RedisLockHandle` — Represents ownership of a distributed Redis lock acquired through `RedisLockUtil.TryLock`.
+```csharp
+using Soenneker.Redis.Lock;
+using Soenneker.Redis.Lock.Abstract;
 
-## API at a glance
+RedisLockHandle? handle = await redisLocks.TryLock(
+    "orders:42:fulfill",
+    TimeSpan.FromSeconds(30),
+    cancellationToken);
 
-| API | What it does | Result / important behavior |
-| --- | --- | --- |
-| `IRedisLockUtil.Check(lockName, cancellationToken)` | Checks if a Redis lock with the specified name is currently set. | `true` if the lock is currently set; otherwise `false`. |
-| `IRedisLockUtil.TryLock(lockName, expiration, cancellationToken)` | Attempts to acquire a Redis lock only when it is not already set. | A handle that owns and releases the lock if acquisition succeeded; otherwise `null`. |
-| `IRedisLockUtil.Lock(lockName, expiration, cancellationToken)` | Sets a Redis lock with the specified name and expiration. | A `ValueTask` representing the asynchronous operation. |
-| `IRedisLockUtil.Unlock(lockName, cancellationToken)` | Releases a Redis lock created by `Lock`. | `true` if the lock was released; otherwise `false`. |
-| `IRedisLockUtil.Unlock(lockName, lockValue, cancellationToken)` | Releases a Redis lock only when its current value matches the specified lock value. | `true` if the value matched and the lock was released; otherwise `false`. |
-| `IRedisLockUtil.ForceUnlock(lockName, cancellationToken)` | Forcibly releases a Redis lock without checking its value. | A `ValueTask` representing the asynchronous operation. |
-| `IRedisLockUtil.ForceUnlockAll(locks, cancellationToken)` | Forcibly releases multiple Redis locks without checking ownership. | A `Task` representing the asynchronous operation. |
-| `RedisLockUtilRegistrar.AddRedisLockUtilAsSingleton(services)` | Registers Redis Lock Util with a singleton lifetime. | The same service collection, so additional registrations can be chained. |
-| `RedisLockUtilRegistrar.AddRedisLockUtilAsScoped(services)` | Registers Redis Lock Util with a scoped lifetime. | The same service collection, so additional registrations can be chained. |
+if (handle is null)
+    return; // another owner holds the lock
 
-## Practical notes
+await using (handle)
+{
+    await FulfillOrder(cancellationToken);
+}
+```
 
-- Cancellation stops pending work; it does not undo work that has already completed.
-- Dispose instances you own when their scope ends so held resources can be released.
+`TryLock` writes a unique ownership token only when the key does not exist. Disposing the handle removes the key only if that token still matches, so an expired lock acquired by another process is not released accidentally.
+
+Choose an expiration longer than the protected operation. This package does not renew leases and does not issue fencing tokens; if an operation can outlive its lease, an old owner can continue running after a new owner acquires the key. For correctness-critical writes, add a fencing/version check in the protected resource.
+
+## Lower-level operations
+
+- `Check` is a point-in-time existence check, not proof that the caller owns a lock.
+- `Lock` unconditionally writes the shared value `1`, overwriting any existing value. Prefer `TryLock` for mutual exclusion.
+- `Unlock(lockName)` releases only a value written by `Lock`; `Unlock(lockName, lockValue)` performs a compare-and-delete.
+- `ForceUnlock` and `ForceUnlockAll` delete without checking ownership and should be reserved for recovery/administration.
+
+Cancellation can stop a pending call, but it does not undo a lock command Redis already accepted.

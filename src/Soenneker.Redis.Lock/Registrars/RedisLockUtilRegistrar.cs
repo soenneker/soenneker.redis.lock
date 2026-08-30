@@ -6,7 +6,7 @@ using Soenneker.Redis.Util.Registrars;
 namespace Soenneker.Redis.Lock.Registrars;
 
 /// <summary>
-/// A utility library leveraging Redis that provides distributed locking
+/// Registers Redis-backed locking services.
 /// </summary>
 public static class RedisLockUtilRegistrar
 {

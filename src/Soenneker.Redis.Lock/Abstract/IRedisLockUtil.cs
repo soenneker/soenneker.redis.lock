@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 namespace Soenneker.Redis.Lock.Abstract;
 
 /// <summary>
-/// A utility library leveraging Redis that provides distributed locking <para/>
-/// Typically Scoped IoC
+/// Provides expiring Redis locks and ownership-aware release operations.
 /// </summary>
 public interface IRedisLockUtil
 {
     /// <summary>
-    /// Checks if a Redis lock with the specified name is currently set.
+    /// Checks whether a lock key exists at the time of the call.
     /// </summary>
     /// <param name="lockName">The name of the lock to check.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
@@ -30,7 +29,7 @@ public interface IRedisLockUtil
     ValueTask<RedisLockHandle?> TryLock(string lockName, System.TimeSpan expiration, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Sets a Redis lock with the specified name and expiration.
+    /// Unconditionally writes a lock key with the shared value <c>1</c>, replacing any existing value.
     /// </summary>
     /// <param name="lockName">The name of the lock to set.</param>
     /// <param name="expiration">The amount of time after which the lock automatically expires.</param>
@@ -39,7 +38,7 @@ public interface IRedisLockUtil
     ValueTask Lock(string lockName, System.TimeSpan expiration, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Releases a Redis lock created by <see cref="Lock"/>.
+    /// Releases a lock only when its value is the shared value written by <see cref="Lock"/>.
     /// </summary>
     /// <param name="lockName">The name of the lock to release.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
@@ -56,7 +55,7 @@ public interface IRedisLockUtil
     ValueTask<bool> Unlock(string lockName, string lockValue, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Forcibly releases a Redis lock without checking its value.
+    /// Forcibly releases a Redis lock without checking ownership.
     /// </summary>
     /// <param name="lockName">The name of the lock to release.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
