@@ -21,6 +21,12 @@ public class RedisLockUtilTests : HostedUnitTest
     }
 
     [Test]
+    public void Service_should_resolve()
+    {
+        _util.Should().NotBeNull();
+    }
+
+    [Test]
     public async Task Check_after_lock_should_be_true(CancellationToken cancellationToken)
     {
         string lockName = CreateLockName();

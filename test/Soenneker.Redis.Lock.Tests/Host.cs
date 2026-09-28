@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -26,6 +27,7 @@ public class Host : UnitTestHost
 
         IConfiguration config = TestUtil.BuildConfig();
         services.AddSingleton(config);
+        services.AddSingleton<JsonSerializerContext>(TestJsonContext.Default);
         services.AddRedisLockUtilAsSingleton();
     }
 }
