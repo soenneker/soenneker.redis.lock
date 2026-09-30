@@ -27,7 +27,7 @@ public class RedisLockUtilTests : HostedUnitTest
     }
 
     [Test]
-    public async Task Check_after_lock_should_be_true(CancellationToken cancellationToken)
+    public async ValueTask Check_after_lock_should_be_true(CancellationToken cancellationToken)
     {
         string lockName = CreateLockName();
 
@@ -39,7 +39,7 @@ public class RedisLockUtilTests : HostedUnitTest
     }
 
     [Test]
-    public async Task Check_after_expiration_should_be_false(CancellationToken cancellationToken)
+    public async ValueTask Check_after_expiration_should_be_false(CancellationToken cancellationToken)
     {
         string lockName = CreateLockName();
 
@@ -52,7 +52,7 @@ public class RedisLockUtilTests : HostedUnitTest
     }
 
     [Test]
-    public async Task TryLock_should_not_overwrite_existing_lock(CancellationToken cancellationToken)
+    public async ValueTask TryLock_should_not_overwrite_existing_lock(CancellationToken cancellationToken)
     {
         string lockName = CreateLockName();
 
@@ -64,7 +64,7 @@ public class RedisLockUtilTests : HostedUnitTest
     }
 
     [Test]
-    public async Task TryLock_handle_should_release_owned_lock(CancellationToken cancellationToken)
+    public async ValueTask TryLock_handle_should_release_owned_lock(CancellationToken cancellationToken)
     {
         string lockName = CreateLockName();
 
@@ -79,7 +79,7 @@ public class RedisLockUtilTests : HostedUnitTest
     }
 
     [Test]
-    public async Task Unlock_should_require_matching_lock_value(CancellationToken cancellationToken)
+    public async ValueTask Unlock_should_require_matching_lock_value(CancellationToken cancellationToken)
     {
         string lockName = CreateLockName();
 
@@ -95,7 +95,7 @@ public class RedisLockUtilTests : HostedUnitTest
     }
 
     [Test]
-    public async Task Unlock_should_release_lock_created_by_Lock(CancellationToken cancellationToken)
+    public async ValueTask Unlock_should_release_lock_created_by_Lock(CancellationToken cancellationToken)
     {
         string lockName = CreateLockName();
 
@@ -108,7 +108,7 @@ public class RedisLockUtilTests : HostedUnitTest
     }
 
     [Test]
-    public async Task ForceUnlock_should_remove_lock(CancellationToken cancellationToken)
+    public async ValueTask ForceUnlock_should_remove_lock(CancellationToken cancellationToken)
     {
         string lockName = CreateLockName();
 
@@ -121,7 +121,7 @@ public class RedisLockUtilTests : HostedUnitTest
     }
 
     [Test]
-    public async Task ForceUnlockAll_should_remove_locks(CancellationToken cancellationToken)
+    public async ValueTask ForceUnlockAll_should_remove_locks(CancellationToken cancellationToken)
     {
         string lockName1 = CreateLockName();
         string lockName2 = CreateLockName();
