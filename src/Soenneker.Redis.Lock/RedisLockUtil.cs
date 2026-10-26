@@ -38,10 +38,13 @@ public sealed class RedisLockUtil : IRedisLockUtil
     {
         ValidateExpiration(expiration);
 
-        _logger.LogDebug("Attempting to set Redis lock ({lockName}) with expiration ({expiration})...", lockName, expiration);
+        _logger.LogTrace("Attempting to set Redis lock ({lockName}) with expiration ({expiration})...", lockName, expiration);
 
         var lockToken = System.Guid.NewGuid().ToString();
         bool acquired = await _redisUtil.SetIfNotExists(lockName, lockToken, expiration, cancellationToken).NoSync();
+
+        if (acquired)
+            _logger.LogDebug("Acquired Redis lock ({lockName}) with expiration ({expiration})", lockName, expiration);
 
         return acquired ? new RedisLockHandle(this, lockName, lockToken) : null;
     }
