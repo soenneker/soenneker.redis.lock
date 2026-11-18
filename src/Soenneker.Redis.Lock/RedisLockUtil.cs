@@ -38,7 +38,8 @@ public sealed class RedisLockUtil : IRedisLockUtil
     {
         ValidateExpiration(expiration);
 
-        _logger.LogTrace("Attempting to set Redis lock ({lockName}) with expiration ({expiration})...", lockName, expiration);
+        if (_logger.IsEnabled(LogLevel.Trace))
+            _logger.LogTrace("Attempting to set Redis lock ({lockName}) with expiration ({expiration})...", lockName, expiration);
 
         var lockToken = System.Guid.NewGuid().ToString();
         bool acquired = await _redisUtil.SetIfNotExists(lockName, lockToken, expiration, cancellationToken).NoSync();
@@ -53,7 +54,8 @@ public sealed class RedisLockUtil : IRedisLockUtil
     {
         ValidateExpiration(expiration);
 
-        _logger.LogDebug("Setting Redis lock ({lockName}) with expiration ({expiration})...", lockName, expiration);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Setting Redis lock ({lockName}) with expiration ({expiration})...", lockName, expiration);
 
         return _redisUtil.Set(lockName, _lockValue, expiration, cancellationToken: cancellationToken);
     }
@@ -65,7 +67,8 @@ public sealed class RedisLockUtil : IRedisLockUtil
 
     public ValueTask<bool> Unlock(string lockName, string lockValue, CancellationToken cancellationToken = default)
     {
-        _logger.LogDebug("Unlocking Redis lock ({lockName}) if its value matches...", lockName);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Unlocking Redis lock ({lockName}) if its value matches...", lockName);
 
         return _redisUtil.RemoveIfEqual(lockName, lockValue, cancellationToken);
     }
